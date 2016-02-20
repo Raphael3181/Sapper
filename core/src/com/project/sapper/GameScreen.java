@@ -12,13 +12,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 
 public class GameScreen implements Screen {
+	
 	ScreenController sc;
 	SpriteBatch batch;
+	TextureHelper textures;
 	OrthographicCamera camera;
 	Stage stage;
-	Texture objects;
-	TextureRegion objectsTR[];
-	//Блок констант
+	
+	//Р‘Р»РѕРє РєРѕРЅСЃС‚Р°РЅС‚
 	int WIDTH=10; 
 	int HEIGTH=10; 
 	int MINES=10; 
@@ -26,33 +27,25 @@ public class GameScreen implements Screen {
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
 		this.batch = batch;
 		this.sc = sc;
+		textures = TextureHelper.getInstance();
 		camera = new OrthographicCamera();
 	    camera.setToOrtho(false,WIDTH*40,HEIGTH*40);
 	    FitViewport viewp = new FitViewport(WIDTH*40,HEIGTH*40, camera);
 	    stage = new Stage(viewp, batch);
-	    initObjects();
 	    fillField ();
 	    
 	}
-	public void initObjects(){
-		objects = new Texture("objects.jpg");
-		objectsTR = new TextureRegion [16];
-		for (int i=0; i<4; i++){
-			for (int j=0; j<4; j++){
-				objectsTR [4*i+j]= new TextureRegion(objects, 40*j, 40*i, 40, 40);
-			}
-		}
-	}
+	
 	public void fillField (){
 		for (int i=0; i<WIDTH; i++){
 			for (int j=0; j<HEIGTH; j++){
-			createCell(objectsTR[0],40*i, 40*j);
+				createCell(textures.objectsTR[0],40*i, 40*j);
 			}
 		}
 	}
 	
 	public void createCell(TextureRegion tr, int x, int y ){
-		CustomActor object= new CustomActor(tr);
+		CustomActor object = new CustomActor(tr);
 		object.setSize(40,40);
 		object.setPosition(x, y);
 	    stage.addActor(object);
@@ -72,33 +65,18 @@ public class GameScreen implements Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void resize(int width, int height) {}
 
 	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void pause() {}
 
 	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void resume() {}
 
 	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void hide() {}
 
 	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void dispose() {}
 	
 }

@@ -1,11 +1,9 @@
 package com.project.sapper;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -15,8 +13,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class MenuScreen implements Screen {
 	ScreenController sc;
+	TextureHelper textures;
 	SpriteBatch batch;
-	Texture buttons;
 	TextureRegion buttonPlay, buttonAlg;
 	Stage stage;
 	OrthographicCamera camera;
@@ -31,6 +29,7 @@ public class MenuScreen implements Screen {
 	public MenuScreen (SpriteBatch batch, ScreenController sc){
 		this.batch = batch;
 		this.sc = sc;
+		textures = TextureHelper.getInstance();
 		camera = new OrthographicCamera();
 	    camera.setToOrtho(false, 800, 480);
 	    FitViewport viewp = new FitViewport(800,480, camera);
@@ -38,9 +37,8 @@ public class MenuScreen implements Screen {
 	    initButtons();
 	}
 	public void initButtons (){
-		buttons = new Texture("buttons.png");
-		buttonPlay = new  TextureRegion(buttons, 0, 0, 300, 75);
-		buttonAlg = new  TextureRegion(buttons, 0, 75, 300, 75);
+		buttonPlay = new  TextureRegion(textures.buttons, 0, 0, 300, 75);
+		buttonAlg = new  TextureRegion(textures.buttons, 0, 75, 300, 75);
 		createButton(buttonPlay, 10, 100);
 		createButton(buttonAlg, 10, 10);
 	}
@@ -55,16 +53,14 @@ public class MenuScreen implements Screen {
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(stage);
-		
+		Gdx.input.setInputProcessor(stage);	
 	}
 
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-	     stage.draw();
-	     stage.act(Gdx.graphics.getDeltaTime());
-		
+	    stage.draw();
+	    stage.act(Gdx.graphics.getDeltaTime());
 	}
 
 	@Override

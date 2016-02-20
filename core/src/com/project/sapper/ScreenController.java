@@ -12,8 +12,9 @@ public class ScreenController extends Game {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		TextureHelper.initInstance();
 		menuScreen = new MenuScreen (batch, this);
-		setScreen(menuScreen);
 		gameScreen = new GameScreen (batch, this);
+		setScreen(menuScreen);
 	}	
 }
