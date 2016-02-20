@@ -21,6 +21,8 @@ public class MenuScreen implements Screen {
 	class GoToGameListener extends ClickListener {
 		@Override
 	    public void clicked(InputEvent event, float x, float y) {
+			Gdx.graphics.setDisplayMode(15*40, 10*40, false);
+			sc.gameScreen = new GameScreen (sc.batch, sc);
 			sc.setScreen(sc.gameScreen);
 	    }
 	 }

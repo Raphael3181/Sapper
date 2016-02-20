@@ -6,8 +6,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 
 public class GameScreen implements Screen {
@@ -20,10 +25,16 @@ public class GameScreen implements Screen {
 	Stage stage;
 	
 	//Блок констант
-	static int WIDTH = 10; 
+	static int WIDTH = 15; 
 	static int HEIGHT = 10; 
 	static int MINES = 10; 
 	
+	class CustomListener extends ClickListener {
+		@Override
+	    public void clicked(InputEvent event, float x, float y) {
+			System.out.println(x + " " + y);
+	    }
+	 }
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
 		this.batch = batch;
 		this.sc = sc;
@@ -35,7 +46,7 @@ public class GameScreen implements Screen {
 		field.fillStates();
 		camera = new OrthographicCamera();
 	    camera.setToOrtho(false,WIDTH*40,HEIGHT*40);
-	    FitViewport viewp = new FitViewport(WIDTH*40,HEIGHT*40, camera);
+	    ScreenViewport viewp = new ScreenViewport(camera);
 	    stage = new Stage(viewp, batch);
 	    fillField ();
 	}
@@ -55,11 +66,13 @@ public class GameScreen implements Screen {
 	    stage.addActor(cell);
 	    cell.w = w;
 	    cell.h = h;
+	    System.out.println(cell.getX());
     }
 
 	@Override
 	public void show() {
-		Gdx.graphics.setDisplayMode(WIDTH*40, HEIGHT*40, false);
+		Gdx.input.setInputProcessor(stage);	
+		stage.addListener(new CustomListener());
 	}
 
 	@Override

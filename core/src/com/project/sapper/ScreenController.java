@@ -15,7 +15,6 @@ public class ScreenController extends Game {
 		TextureHelper.initInstance();
 		GameField.initInstance();
 		menuScreen = new MenuScreen (batch, this);
-		gameScreen = new GameScreen (batch, this);
 		setScreen(menuScreen);
 	}	
 }
