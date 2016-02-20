@@ -15,44 +15,51 @@ public class GameScreen implements Screen {
 	ScreenController sc;
 	SpriteBatch batch;
 	TextureHelper textures;
+	GameField field;
 	OrthographicCamera camera;
 	Stage stage;
 	
 	//Блок констант
-	static int WIDTH=10; 
-	static int HEIGTH=10; 
-	static int MINES=10; 
+	static int WIDTH = 10; 
+	static int HEIGHT = 10; 
+	static int MINES = 10; 
 	
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
 		this.batch = batch;
 		this.sc = sc;
 		textures = TextureHelper.getInstance();
+		field = GameField.getInstance();
+		field.width = WIDTH;
+		field.height = HEIGHT;
+		field.fillMines();
+		field.fillStates();
 		camera = new OrthographicCamera();
-	    camera.setToOrtho(false,WIDTH*40,HEIGTH*40);
-	    FitViewport viewp = new FitViewport(WIDTH*40,HEIGTH*40, camera);
+	    camera.setToOrtho(false,WIDTH*40,HEIGHT*40);
+	    FitViewport viewp = new FitViewport(WIDTH*40,HEIGHT*40, camera);
 	    stage = new Stage(viewp, batch);
 	    fillField ();
-	    
 	}
 	
 	public void fillField (){
 		for (int i=0; i<WIDTH; i++){
-			for (int j=0; j<HEIGTH; j++){
-				createCell(textures.objectsTR[0],40*i, 40*j);
+			for (int j=0; j<HEIGHT; j++){
+				createCell(textures.objectsTR[0],40*i, 40*j, i, j);
 			}
 		}
 	}
 	
-	public void createCell(TextureRegion tr, int x, int y ){
-		CustomActor object = new CustomActor(tr);
-		object.setSize(40,40);
-		object.setPosition(x, y);
-	    stage.addActor(object);
+	public void createCell(TextureRegion tr, int x, int y, int w, int h){
+		Cell cell = new Cell();
+		cell.setSize(40,40);
+		cell.setPosition(x, y);
+	    stage.addActor(cell);
+	    cell.w = w;
+	    cell.h = h;
     }
 
 	@Override
 	public void show() {
-		Gdx.graphics.setDisplayMode(WIDTH*40, HEIGTH*40, false);
+		Gdx.graphics.setDisplayMode(WIDTH*40, HEIGHT*40, false);
 	}
 
 	@Override
@@ -60,7 +67,6 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		stage.draw();
 	    stage.act(Gdx.graphics.getDeltaTime());
-		
 	}
 
 	@Override
