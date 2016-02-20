@@ -10,13 +10,15 @@ public class TextureHelper {
 	public Texture buttons;
 	public Texture objects;
 	//Регионы текстур
-	TextureRegion objectsTR[];
+	TextureRegion objectsTR[], buttonPlay, buttonAlg;;
 	
 	public static void initInstance() { textureHelper = new TextureHelper(); textureHelper.initTextures(); }
 	public static TextureHelper getInstance() { return textureHelper;}
 	
 	public void initTextures() {
 		buttons = new Texture("buttons.png");
+		buttonPlay = new  TextureRegion(buttons, 0, 0, 300, 75);
+		buttonAlg = new  TextureRegion(buttons, 0, 75, 300, 75);
 		objects = new Texture("objects.jpg");
 		initObjects();
 	}

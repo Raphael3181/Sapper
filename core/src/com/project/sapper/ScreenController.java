@@ -13,6 +13,7 @@ public class ScreenController extends Game {
 	public void create () {
 		batch = new SpriteBatch();
 		TextureHelper.initInstance();
+		GameField.initInstance();
 		menuScreen = new MenuScreen (batch, this);
 		gameScreen = new GameScreen (batch, this);
 		setScreen(menuScreen);

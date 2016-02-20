@@ -15,7 +15,6 @@ public class MenuScreen implements Screen {
 	ScreenController sc;
 	TextureHelper textures;
 	SpriteBatch batch;
-	TextureRegion buttonPlay, buttonAlg;
 	Stage stage;
 	OrthographicCamera camera;
 	
@@ -37,10 +36,8 @@ public class MenuScreen implements Screen {
 	    initButtons();
 	}
 	public void initButtons (){
-		buttonPlay = new  TextureRegion(textures.buttons, 0, 0, 300, 75);
-		buttonAlg = new  TextureRegion(textures.buttons, 0, 75, 300, 75);
-		createButton(buttonPlay, 10, 100);
-		createButton(buttonAlg, 10, 10);
+		createButton(textures.buttonPlay, 10, 100);
+		createButton(textures.buttonAlg, 10, 10);
 	}
 	
 	public void createButton(TextureRegion tr, int x, int y ){

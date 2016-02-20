@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,9 +19,9 @@ public class GameScreen implements Screen {
 	Stage stage;
 	
 	//Блок констант
-	int WIDTH=10; 
-	int HEIGTH=10; 
-	int MINES=10; 
+	static int WIDTH=10; 
+	static int HEIGTH=10; 
+	static int MINES=10; 
 	
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
 		this.batch = batch;
