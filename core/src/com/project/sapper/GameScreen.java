@@ -32,7 +32,7 @@ public class GameScreen implements Screen {
 	class CustomListener extends ClickListener {
 		@Override
 	    public void clicked(InputEvent event, float x, float y) {
-			System.out.println(x + " " + y);
+			Tests.printMines();
 	    }
 	 }
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
@@ -66,7 +66,6 @@ public class GameScreen implements Screen {
 	    stage.addActor(cell);
 	    cell.w = w;
 	    cell.h = h;
-	    System.out.println(cell.getX());
     }
 
 	@Override
