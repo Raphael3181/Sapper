@@ -28,8 +28,31 @@ public class GameScreen implements Screen {
 	class CustomListener extends ClickListener {
 		@Override
 	    public void clicked(InputEvent event, float x, float y) {
-			Tests.printMines();
+			int w=(int)(x/40);
+			int h=(int)(y/40);
+			int state=field.mines[w][h]+2;
+			if (state==2){
+				openCell(w,h);
+			}else if (state==11){
+				
+			}else field.states[w][h] = state;
+			
 	    }
+		public void openCell(int w, int h) {
+			int state=field.mines[w][h]+2;
+			System.out.print(state);
+			if (state==2 && field.states[w][h]==0) {
+				if (w-1!=-1 && h-1!=-1) openCell(w-1,h-1);
+				if (h-1!=-1) openCell(w,h-1);
+				if (w+1!=WIDTH && h-1!=-1) openCell(w+1,h-1);
+				if (w-1!=-1) openCell(w-1,h);
+				if (w+1!=WIDTH) openCell(w+1,h);
+				if (w-1!=-1 && h+1!=HEIGHT) openCell(w-1,h+1);
+				if (h+1!=HEIGHT) openCell(w,h+1);
+				if (w+1!=WIDTH && h+1!=HEIGHT) openCell(w+1,h+1);
+			}
+			field.states[w][h] = state;
+		}
 	 }
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
 		this.batch = batch;
@@ -39,6 +62,7 @@ public class GameScreen implements Screen {
 		field.width = WIDTH;
 		field.height = HEIGHT;
 		field.fillMines();
+		Tests.printMines();
 		field.fillStates();
 		camera = new OrthographicCamera();
 	    camera.setToOrtho(false,WIDTH*40,HEIGHT*40);
