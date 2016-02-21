@@ -23,7 +23,7 @@ public class GameScreen implements Screen {
 	//Блок констант
 	static int WIDTH = 15; 
 	static int HEIGHT = 10; 
-	static int MINES = 20; 
+	static int MINES = 30; 
 	
 	class CustomListener extends ClickListener {
 		@Override
@@ -40,8 +40,10 @@ public class GameScreen implements Screen {
 	    }
 		public void openCell(int w, int h) {
 			int state=field.mines[w][h]+2;
+			int oldState = field.states[w][h];
 			System.out.print(state);
-			if (state==2 && field.states[w][h]==0) {
+			field.states[w][h] = state;
+			if (state==2 && oldState==0) {
 				if (w-1!=-1 && h-1!=-1) openCell(w-1,h-1);
 				if (h-1!=-1) openCell(w,h-1);
 				if (w+1!=WIDTH && h-1!=-1) openCell(w+1,h-1);
@@ -51,7 +53,7 @@ public class GameScreen implements Screen {
 				if (h+1!=HEIGHT) openCell(w,h+1);
 				if (w+1!=WIDTH && h+1!=HEIGHT) openCell(w+1,h+1);
 			}
-			field.states[w][h] = state;
+			
 		}
 	 }
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
