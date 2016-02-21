@@ -34,7 +34,13 @@ public class GameScreen implements Screen {
 			if (state==2){
 				openCell(w,h);
 			}else if (state==11){
-				
+				for (int i=0; i<WIDTH; i++ ){
+					for (int j=0; j<HEIGHT; j++ ){
+					if (field.mines[i][j] == 9) field.states[i][j] = field.mines[i][j]+2;
+					}
+				}
+				field.states[w][h] = 13;
+					
 			}else field.states[w][h] = state;
 			
 	    }
@@ -53,7 +59,6 @@ public class GameScreen implements Screen {
 				if (h+1!=HEIGHT) openCell(w,h+1);
 				if (w+1!=WIDTH && h+1!=HEIGHT) openCell(w+1,h+1);
 			}
-			
 		}
 	 }
 	public GameScreen(SpriteBatch batch, ScreenController sc) {
