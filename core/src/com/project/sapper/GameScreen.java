@@ -9,11 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
-
 
 public class GameScreen implements Screen {
 	
@@ -27,7 +23,7 @@ public class GameScreen implements Screen {
 	//Блок констант
 	static int WIDTH = 15; 
 	static int HEIGHT = 10; 
-	static int MINES = 10; 
+	static int MINES = 20; 
 	
 	class CustomListener extends ClickListener {
 		@Override

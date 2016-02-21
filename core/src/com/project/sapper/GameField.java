@@ -45,8 +45,8 @@ public class GameField  {
 		if (w-1!=-1) updateCell(w-1,h);
 		if (w+1!=width) updateCell(w+1,h);
 		if (w-1!=-1 && h+1!=height) updateCell(w-1,h+1);
-		if (h+1!=-1) updateCell(w,h+1);
-		if (w+1!=-1 && h+1!=-1) updateCell(w+1,h+1);
+		if (h+1!=height) updateCell(w,h+1);
+		if (w+1!=width && h+1!=height) updateCell(w+1,h+1);
 	}
 	public void updateCell(int w, int h){
 		if (mines[w][h]!=9) mines[w][h]++;
