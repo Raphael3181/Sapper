@@ -18,11 +18,16 @@ public class MenuScreen implements Screen {
 	Stage stage;
 	OrthographicCamera camera;
 	
-	class GoToGameListener extends ClickListener {
+	class ButtonListener extends ClickListener {
+		boolean isGame;
+		public ButtonListener(boolean isGame) {
+			this.isGame = isGame;
+		}
 		@Override
 	    public void clicked(InputEvent event, float x, float y) {
 			Gdx.graphics.setDisplayMode(15*40, 10*40, false);
 			sc.gameScreen = new GameScreen (sc.batch, sc);
+			GameField.getInstance().isGame = isGame;
 			sc.setScreen(sc.gameScreen);
 	    }
 	 }
@@ -37,16 +42,17 @@ public class MenuScreen implements Screen {
 	    stage = new Stage(viewp, batch);
 	    initButtons();
 	}
+	
 	public void initButtons (){
-		createButton(textures.buttonPlay, 10, 100);
-		createButton(textures.buttonAlg, 10, 10);
+		createButton(textures.buttonPlay, 400 - textures.buttonPlay.getRegionWidth()/2 , 250);
+		createButton(textures.buttonAlg, 400 - textures.buttonPlay.getRegionWidth()/2, 150);
 	}
 	
 	public void createButton(TextureRegion tr, int x, int y ){
 		CustomActor button= new CustomActor(tr);
 	    button.setSize(300, 75);
 	    button.setPosition(x, y);
-        button.addListener(new GoToGameListener());
+        button.addListener(new ButtonListener(tr.equals(textures.buttonPlay) ? true : false));
 	    stage.addActor(button);
     }
 
