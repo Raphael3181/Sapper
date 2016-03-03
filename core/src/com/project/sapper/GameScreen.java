@@ -1,5 +1,6 @@
 package com.project.sapper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.badlogic.gdx.Gdx;
@@ -21,13 +22,15 @@ public class GameScreen implements Screen {
 	GameField field;
 	OrthographicCamera camera;
 	Stage stage;
+	
 	long time = 0;
+	static ArrayList<Group> groups;
 	
 	//Блок констант
 	static int WIDTH = 15; 
 	static int HEIGHT = 10; 
 	static int MINES = 30; 
-	static int DELAY = 700; 
+	static int DELAY = 3000; 
 	
 	class CustomListener extends ClickListener {
 		@Override
@@ -49,6 +52,9 @@ public class GameScreen implements Screen {
 						
 				} else field.states[w][h] = state;
 			}
+			groups = new ArrayList<Group>();
+			refreshGroups();
+			Tests.printGroups();
 	    }
 	}
 	
@@ -65,6 +71,7 @@ public class GameScreen implements Screen {
 	    ScreenViewport viewp = new ScreenViewport(camera);
 	    stage = new Stage(viewp, batch);
 	    fillField ();
+	    groups = new ArrayList<Group>();
 	}
 	
 	public void openCell(int w, int h) {
@@ -92,7 +99,7 @@ public class GameScreen implements Screen {
 	}
 	
 	public void createCell(TextureRegion tr, int x, int y, int w, int h){
-		Cell cell = new Cell();
+		CellTexture cell = new CellTexture();
 		cell.setSize(40,40);
 		cell.setPosition(x, y);
 	    stage.addActor(cell);
@@ -120,16 +127,72 @@ public class GameScreen implements Screen {
 		else if(time + DELAY < calendar.getTimeInMillis()) {
 			time = calendar.getTimeInMillis();
 			algStep();
+			Tests.printGroups();
+		}
+	}
+	/** Шаг алгоритма */
+	public void algStep() {
+		if(field.mines == null) {
+			int w =(int)(Math.random()*WIDTH);
+			int h =(int)(Math.random()*HEIGHT);	
+			field.fillMines(w, h);
+			openCell(w, h); 
+		} else {
+			refreshGroups();
+		}	
+	}
+	
+	/**Обновление списка групп */
+	public void refreshGroups() {
+		for(int i=0; i < WIDTH; i++) {
+			for(int j=0; j < HEIGHT; j++) {
+				if(field.states[i][j] > 2 && field.states[i][j] < 11) addGroup(i, j);
+			}
+		}
+		devideGroups();
+	}
+	
+	/**Нужно ли добавлять группу для данной ячейки */
+	public void addGroup(int w, int h) {
+		Group group = new Group();
+		if (w-1!=-1 && h-1!=-1) if(field.states[w-1][h-1] == 0) group.cells.add(new Cell(w-1, h-1)) ;
+		if (h-1!=-1) if(field.states[w][h-1] == 0) group.cells.add(new Cell(w, h-1)) ;
+		if (w+1!=WIDTH && h-1!=-1) if(field.states[w+1][h-1]==0)group.cells.add(new Cell(w+1, h-1)) ;
+		if (w-1!=-1) if(field.states[w-1][h] == 0) group.cells.add(new Cell(w-1, h)) ;
+		if (w+1!=WIDTH) if(field.states[w+1][h] == 0) group.cells.add(new Cell(w+1, h)) ;
+		if (w-1!=-1 && h+1!=HEIGHT) if(field.states[w-1][h+1] == 0) group.cells.add(new Cell(w-1, h+1)) ;
+		if (h+1!=HEIGHT) if(field.states[w][h+1] == 0) group.cells.add(new Cell(w, h+1)) ;
+		if (w+1!=WIDTH && h+1!=HEIGHT) if(field.states[w+1][h+1] == 0) group.cells.add(new Cell(w+1, h+1)) ;
+		if (group.cells.size() != 0) {
+			group.number = field.states[w][h] - 2;
+			groups.add(group);
 		}
 	}
 	
-	public void algStep() {
-		if(field.mines == null) field.fillMines((int)(Math.random()*WIDTH), (int)(Math.random()*WIDTH));
-		int w =(int)(Math.random()*WIDTH);
-		int h =(int)(Math.random()*HEIGHT);	
-		openCell(w, h);
+	public void devideGroups() {
+		boolean repeat;
+		do {
+			repeat = false;
+			//Удаление одинаковых групп
+			for(int i=0; i < groups.size(); i++) {
+				Group group = groups.get(i);
+				for(int j=0; j < groups.size(); j++) {
+					if(i!=j && group.equals(groups.get(j))) {groups.remove(j); repeat = true; break;}
+				}
+				if(repeat) break;
+			}
+			//Разделение групп
+			for(int i=0; i < groups.size(); i++) {
+				Group group = groups.get(i);
+				for(int j=0; j < groups.size(); j++) {
+					if(i!=j) {
+						Group newGroup = new Group();
+						
+					}
+				}
+			}
+		} while (repeat);
 	}
-	
 	@Override
 	public void resize(int width, int height) {}
 
