@@ -17,6 +17,7 @@ public class MenuScreen implements Screen {
 	SpriteBatch batch;
 	Stage stage;
 	OrthographicCamera camera;
+	GameField field;
 	
 	class ButtonListener extends ClickListener {
 		boolean isGame;
@@ -25,9 +26,10 @@ public class MenuScreen implements Screen {
 		}
 		@Override
 	    public void clicked(InputEvent event, float x, float y) {
-			Gdx.graphics.setDisplayMode(15*40, 10*40, false);
+			field = GameField.getInstance();
+			field.isGame = isGame;
+			Gdx.graphics.setDisplayMode(field.WIDTH*40, field.HEIGHT*40, false);
 			sc.gameScreen = new GameScreen (sc.batch, sc);
-			GameField.getInstance().isGame = isGame;
 			sc.setScreen(sc.gameScreen);
 	    }
 	 }
