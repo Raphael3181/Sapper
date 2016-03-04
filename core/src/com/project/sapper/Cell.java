@@ -7,4 +7,8 @@ public class Cell {
 		width = w;
 		height = h;
 	}
+	
+	public boolean equals(Cell c) {
+		return(this.width == c.width && this.height == c.height);
+	}
 }

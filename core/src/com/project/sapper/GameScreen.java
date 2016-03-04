@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
 	//Блок констант
 	static int WIDTH = 15; 
 	static int HEIGHT = 10; 
-	static int MINES = 30; 
+	static int MINES = 25; 
 	static int DELAY = 3000; 
 	
 	class CustomListener extends ClickListener {
@@ -53,8 +53,8 @@ public class GameScreen implements Screen {
 				} else field.states[w][h] = state;
 			}
 			groups = new ArrayList<Group>();
-			refreshGroups();
-			Tests.printGroups();
+		refreshGroups();
+		Tests.printGroups();
 	    }
 	}
 	
@@ -149,7 +149,7 @@ public class GameScreen implements Screen {
 				if(field.states[i][j] > 2 && field.states[i][j] < 11) addGroup(i, j);
 			}
 		}
-		devideGroups();
+		handleGroups();
 	}
 	
 	/**Нужно ли добавлять группу для данной ячейки */
@@ -169,7 +169,7 @@ public class GameScreen implements Screen {
 		}
 	}
 	
-	public void devideGroups() {
+	public void handleGroups() {
 		boolean repeat;
 		do {
 			repeat = false;
@@ -183,16 +183,69 @@ public class GameScreen implements Screen {
 			}
 			//Разделение групп
 			for(int i=0; i < groups.size(); i++) {
-				Group group = groups.get(i);
-				for(int j=0; j < groups.size(); j++) {
-					if(i!=j) {
-						Group newGroup = new Group();
-						
-					}
+				Group g1 = groups.get(i);
+				for(int j=i+1; j < groups.size(); j++) {
+					Group g2 = groups.get(j);
+					repeat = devideGroups(g1, g2, i, j);
+					if(repeat) break;
+					
 				}
+				if(repeat) break;
 			}
 		} while (repeat);
 	}
+	
+	public boolean devideGroups(Group g1, Group g2, int i, int j) {	
+		Group ng = new Group();
+		if(g1.cells.size() > g2.cells.size()) {
+			if(g1.contains(g2)) {
+				ng = difference(g1, g2);
+				ng.number = g1.number - g2.number;
+				groups.remove(i);
+				groups.add(ng);
+				return true;
+			}
+		} else if(g2.cells.size() > g1.cells.size()) {
+			if(g2.contains(g1)) {
+				ng = difference(g2, g1);
+				ng.number = g2.number - g1.number;
+				groups.remove(j);
+				groups.add(ng);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Group intersection (Group g1, Group g2) {
+		Group newGroup = new Group();
+		for(int i=0; i< g1.cells.size(); i++) {
+			Cell c1 = g1.cells.get(i);
+			for(int j=0; j< g2.cells.size(); j++) {
+				Cell c2 = g2.cells.get(j);
+				if(c1.equals(c2)) {
+					newGroup.cells.add(c1);
+					break;
+				}
+			}
+		}
+		return newGroup;
+	}
+	
+	public Group difference(Group g1, Group g2) {
+		Group newGroup = new Group();
+			for(int i=0; i< g1.cells.size(); i++) {
+				boolean add = true;
+				Cell c1 = g1.cells.get(i);
+				for(int j=0; j< g2.cells.size(); j++) {
+					Cell c2 = g2.cells.get(j);
+					if(c1.equals(c2)) add = false;
+				}
+				if(add)newGroup.cells.add(c1);
+			}
+		return newGroup;
+	}
+	
 	@Override
 	public void resize(int width, int height) {}
 
