@@ -42,7 +42,7 @@ public class GameField  {
 		for(int i=0; i < width; i++){
 			for(int j=0; j < height; j++) {
 				states[i][j]= 0;	
-				chanсes[i][j]= 100;
+				chanсes[i][j]= -1;
 			}
 		}
 	}

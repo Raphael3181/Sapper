@@ -29,8 +29,8 @@ public class GameScreen implements Screen {
 	//Блок констант
 	static int WIDTH = 15; 
 	static int HEIGHT = 10; 
-	static int MINES = 25; 
-	static int DELAY = 3000; 
+	static int MINES = 20; 
+	static int DELAY = 1; 
 	
 	class CustomListener extends ClickListener {
 		@Override
@@ -52,7 +52,6 @@ public class GameScreen implements Screen {
 						
 				} else field.states[w][h] = state;
 			}
-			groups = new ArrayList<Group>();
 		refreshGroups();
 		Tests.printGroups();
 	    }
@@ -123,11 +122,13 @@ public class GameScreen implements Screen {
 	
 	public void algorithm() {
 		Calendar calendar = Calendar.getInstance();
-		if(time == 0) time = calendar.getTimeInMillis();
+		if(time == 0) {
+			algStep();
+			time = calendar.getTimeInMillis();
+		}
 		else if(time + DELAY < calendar.getTimeInMillis()) {
 			time = calendar.getTimeInMillis();
 			algStep();
-			Tests.printGroups();
 		}
 	}
 	/** Шаг алгоритма */
@@ -136,14 +137,15 @@ public class GameScreen implements Screen {
 			int w =(int)(Math.random()*WIDTH);
 			int h =(int)(Math.random()*HEIGHT);	
 			field.fillMines(w, h);
-			openCell(w, h); 
+			openCell(w, h);
 		} else {
-			refreshGroups();
+			if(!openOrMark())refreshGroups();
 		}	
 	}
 	
 	/**Обновление списка групп */
 	public void refreshGroups() {
+		groups = new ArrayList<Group>();
 		for(int i=0; i < WIDTH; i++) {
 			for(int j=0; j < HEIGHT; j++) {
 				if(field.states[i][j] > 2 && field.states[i][j] < 11) addGroup(i, j);
@@ -164,9 +166,22 @@ public class GameScreen implements Screen {
 		if (h+1!=HEIGHT) if(field.states[w][h+1] == 0) group.cells.add(new Cell(w, h+1)) ;
 		if (w+1!=WIDTH && h+1!=HEIGHT) if(field.states[w+1][h+1] == 0) group.cells.add(new Cell(w+1, h+1)) ;
 		if (group.cells.size() != 0) {
-			group.number = field.states[w][h] - 2;
+			group.number = calcNumber(w, h);
 			groups.add(group);
 		}
+	}
+	
+	private int calcNumber(int w, int h) {
+		int number = field.states[w][h] - 2;
+		if (w-1!=-1 && h-1!=-1) if(field.states[w-1][h-1] == 1) number-- ;
+		if (h-1!=-1) if(field.states[w][h-1] == 1) number--;
+		if (w+1!=WIDTH && h-1!=-1) if(field.states[w+1][h-1]==1)number--;
+		if (w-1!=-1) if(field.states[w-1][h] == 1) number--;
+		if (w+1!=WIDTH) if(field.states[w+1][h] == 1) number--;
+		if (w-1!=-1 && h+1!=HEIGHT) if(field.states[w-1][h+1] == 1) number--;
+		if (h+1!=HEIGHT) if(field.states[w][h+1] == 1) number--;
+		if (w+1!=WIDTH && h+1!=HEIGHT) if(field.states[w+1][h+1] == 1) number--;
+		return number;
 	}
 	
 	public void handleGroups() {
@@ -217,7 +232,7 @@ public class GameScreen implements Screen {
 		return false;
 	}
 	
-	public Group intersection (Group g1, Group g2) {
+	/*public Group intersection (Group g1, Group g2) {
 		Group newGroup = new Group();
 		for(int i=0; i< g1.cells.size(); i++) {
 			Cell c1 = g1.cells.get(i);
@@ -230,7 +245,7 @@ public class GameScreen implements Screen {
 			}
 		}
 		return newGroup;
-	}
+	}*/
 	
 	public Group difference(Group g1, Group g2) {
 		Group newGroup = new Group();
@@ -245,6 +260,27 @@ public class GameScreen implements Screen {
 			}
 		return newGroup;
 	}
+	
+	public boolean openOrMark() {
+		for(Group group: groups) {
+			Cell cell;
+			if(group.number == 0) {
+				cell = group.cells.get(0);
+				openCell(cell.width, cell.height);
+				group.cells.remove(0);
+				if(group.cells.size() == 0) groups.remove(group);
+				return true;
+			} else if(group.number == group.cells.size()) {
+				cell = group.cells.get(0);
+				field.states[cell.width][cell.height] = 1;
+				group.cells.remove(0);
+				if(group.cells.size() == 0) groups.remove(group);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	
 	@Override
 	public void resize(int width, int height) {}
