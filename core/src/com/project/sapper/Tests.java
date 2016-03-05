@@ -25,4 +25,12 @@ public class Tests {
 	    	System.out.println(group.number);
 	    }
 	}
+	//Вывод содержимого массива ячеек
+		public static void printCells() {
+			Iterator<Cell> iter = GameScreen.cells.iterator();
+		    while(iter.hasNext()) {
+		    	Cell cell = iter.next();
+			    System.out.print(cell.width + "::" + cell.height + "---" + cell.chance + "   ");
+		    }
+		}
 }

@@ -3,14 +3,15 @@ package com.project.sapper;
 public class GameField  {
 	public int mines[][];
 	public int states[][];
-	public int chanсes[][];
 	public boolean isGame;
 	
 	//Блок констант
 	int WIDTH = 30; 
-	int HEIGHT = 20; 
-	int MINES = 100; 
-	int DELAY = 1; 
+	int HEIGHT = 16; 
+	int MINES = 99; 
+	int DELAY = 1;
+	int ACCURACY = 10;
+	int ITERATIONS = 500;
 	
 	private static GameField gameField;
 		
@@ -31,7 +32,7 @@ public class GameField  {
 		for (int g=0; g < MINES; g++){
 			int w=(int)(Math.random()*WIDTH);
 			int h=(int)(Math.random()*HEIGHT);
-			while (mines[w][h]==9 ||(clickW == w && clickH == h)){
+			while (mines[w][h]==9 ||(clickW == w && clickH == h)) {
 				 w=(int)(Math.random()*WIDTH);
 				 h=(int)(Math.random()*HEIGHT);	
 			}
@@ -40,13 +41,11 @@ public class GameField  {
 		}
 		
 	}
-	public void fillStatesAndChances (){
+	public void fillStates(){
 		states = new int [WIDTH][HEIGHT];
-		chanсes = new int [WIDTH][HEIGHT];
 		for(int i=0; i < WIDTH; i++){
 			for(int j=0; j < HEIGHT; j++) {
 				states[i][j]= 0;	
-				chanсes[i][j]= -1;
 			}
 		}
 	}

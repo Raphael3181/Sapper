@@ -25,7 +25,10 @@ public class GameScreen implements Screen {
 	
 	long time = 0;
 	int minesLeft;
+	int curIteration = 1;
+	int wins = 0;
 	static ArrayList<Group> groups;
+	static ArrayList<Cell> cells; //Список ячеек для вспомогательного алгоритма
 	
 	class CustomListener extends ClickListener {
 		@Override
@@ -47,8 +50,8 @@ public class GameScreen implements Screen {
 						
 				} else field.states[w][h] = state;
 			}
-		refreshGroups();
-		Tests.printGroups();
+	/*	refreshGroups();
+		Tests.printCells();*/
 	    }
 	}
 	
@@ -57,7 +60,7 @@ public class GameScreen implements Screen {
 		this.sc = sc;
 		textures = TextureHelper.getInstance();
 		field = GameField.getInstance();
-		field.fillStatesAndChances();
+		field.fillStates();
 		camera = new OrthographicCamera();
 	    camera.setToOrtho(false,field.WIDTH*40, field.HEIGHT*40);
 	    ScreenViewport viewp = new ScreenViewport(camera);
@@ -108,7 +111,8 @@ public class GameScreen implements Screen {
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		if(!field.isGame) algorithm();
+		if(!(curIteration > field.ITERATIONS))
+			if(!field.isGame) algorithm();
 		stage.draw();
 	    stage.act(Gdx.graphics.getDeltaTime());
 	}
@@ -137,9 +141,21 @@ public class GameScreen implements Screen {
 			if(!openOrMark()){
 				refreshGroups();
 				if(!openOrMark()) {
-					if(minesLeft == 0) {} //все мины отмечены, всё ОК
+					if(minesLeft == 0) { //все мины отмечены, всё ОК
+						wins++;
+						curIteration++;
+						if(curIteration > field.ITERATIONS) printResults();
+						restartGame();
+					} 
 					else{
-						//Дополнительный алгоритм
+						cells = new ArrayList<Cell>();
+						Cell cell = getMinChance();
+						openCell(cell.width, cell.height);
+						if(field.states[cell.width][cell.height] > 10) { //Подорвался на мине...всё ОК :D
+							curIteration++;
+							if(curIteration > field.ITERATIONS) printResults();
+							restartGame();
+						}
 					}
 				}
 			}
@@ -288,6 +304,72 @@ public class GameScreen implements Screen {
 		return false;
 	}
 	
+	public Cell getMinChance() {
+		setFirstChances();
+		for(int i=0; i<field.ACCURACY; i++) {
+			for(Group group: groups) {
+				float summ = 0;
+				for(Cell cell: group.cells) {
+					for(Cell c: cells) {
+						if(c.equals(cell)) {
+							summ+=c.chance;
+						}	
+					}
+				}
+				float mnozh = (float)group.number/summ;
+				for(Cell cell: group.cells) {
+					for(Cell c: cells) {
+						if(c.equals(cell)) {
+							c.chance = c.chance*mnozh;
+						}	
+					}
+				}
+			}	
+		}
+		
+		Cell rez = null;
+		for(Cell cell: cells) {
+			if(rez == null) rez = cell;
+			else if(cell.chance < rez.chance) rez = cell;
+		}
+		if(cells.isEmpty()) { //Редкий случай, когда остались некотрытые ячейки в углу и группы не смогли сформироваться
+			for(int i=0; i < field.WIDTH; i++){
+				for(int j=0; j < field.HEIGHT; j++){
+					if(field.states[i][j] == 0) rez = new Cell(i,j);
+				}
+			}
+			
+		}
+		return rez;
+	}
+	
+	/** Формирование первоначальных шансов */
+	public void setFirstChances() {
+		for(Group group: groups) {
+			for(Cell cell: group.cells) {
+				boolean add = true;
+				for(Cell c: cells) {
+					if(c.equals(cell)) {
+						add = false;
+						c.chance = 1-(1-c.chance)*(1-(float)group.number/(float)group.cells.size());
+					}
+				}
+				if(add)cells.add(new Cell(cell.width, cell.height, (float)group.number/(float)group.cells.size()));
+			}
+		}
+	}
+	
+	public void printResults() {
+		System.out.println("WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")"+ " MINES:" + 
+				field.MINES+ " FIELD:"+ field.WIDTH + "x" + field.HEIGHT + " ACCURACY:" + field.ACCURACY);
+	}
+	
+	public void restartGame() {
+		field.fillStates();
+		fillField();
+		field.mines = null;
+		time = 0;
+	}
 	
 	@Override
 	public void resize(int width, int height) {}
