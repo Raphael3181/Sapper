@@ -29,6 +29,7 @@ public class GameScreen implements Screen {
 	Stage stage;
 	
 	long time = 0;
+	long startTime = 0;
 	int minesLeft;
 	int curIteration = 1;
 	int wins = 0;
@@ -74,6 +75,7 @@ public class GameScreen implements Screen {
 	    groups = new ArrayList<Group>();
 	    chances = new ArrayList<Chance>();
 	    if(field.noGUI && !field.isGame) {
+	    	startTime = Calendar.getInstance().getTimeInMillis();
 		    new Runnable() {
 				public void run() {
 					while(curIteration <= field.ITERATIONS) algorithm();
@@ -377,9 +379,11 @@ public class GameScreen implements Screen {
 		
 		try {
 			out = new PrintWriter(file.getAbsoluteFile());
-			out.write("FIELD: "+ field.WIDTH + "x" + field.HEIGHT + ", MINES:" + field.MINES + 
-					", WINS:" + new BigDecimal((float)wins/(float)field.ITERATIONS*100).setScale(2, BigDecimal.ROUND_HALF_UP) 
+			out.write("ПОЛЕ: "+ field.WIDTH + "x" + field.HEIGHT + ", МИНЫ:" + field.MINES + 
+					", ПОБЕДЫ:" + new BigDecimal((float)wins/(float)field.ITERATIONS*100).setScale(2, BigDecimal.ROUND_HALF_UP) 
 					+ "% (" + wins + "/" + field.ITERATIONS + ")" + "\r\n");
+			if(field.noGUI)out.write("ВРЕМЯ РАБОТЫ:" + new BigDecimal((float)((float)(Calendar.getInstance().getTimeInMillis()-startTime)/1000f))
+					.setScale(2, BigDecimal.ROUND_HALF_UP) +" с." + "\r\n");
 			for(Chance chance: chances) {
 				if(chance.chance == 0) out.write("ШАНС НЕИЗВЕСТЕН" + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
 				else out.write(chance.chance + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
