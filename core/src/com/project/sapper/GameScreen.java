@@ -124,10 +124,12 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);	
-		if(!(curIteration > field.ITERATIONS) && !field.isGame && !field.noGUI) algorithm();
-		stage.draw();
-	    stage.act(Gdx.graphics.getDeltaTime());
+		if(!field.noGUI) {
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);	
+			if(!(curIteration > field.ITERATIONS) && !field.isGame) algorithm();
+			stage.draw();
+		    stage.act(Gdx.graphics.getDeltaTime());
+		}
 	}
 	
 	public void algorithm() {
@@ -376,7 +378,8 @@ public class GameScreen implements Screen {
 			out.write("FIELD: "+ field.WIDTH + "x" + field.HEIGHT + ", MINES:" + field.MINES + 
 					", WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")" + "\r\n");
 			for(Chance chance: chances) {
-				out.write(chance.chance + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
+				if(chance.chance == 0) out.write("ШАНС НЕИЗВЕСТЕН" + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
+				else out.write(chance.chance + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
 			}	
 		} catch (FileNotFoundException e) {}
 		finally {
