@@ -1,21 +1,31 @@
 package com.project.sapper;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+
 public class GameField  {
 	public int mines[][];
 	public int states[][];
 	public boolean isGame;
 	
 	//Блок констант
-	int WIDTH = 30; 
-	int HEIGHT = 16; 
-	int MINES = 99; 
-	int DELAY = 1;
+	int WIDTH = 9; 
+	int HEIGHT = 9; 
+	int MINES = 10; 
+	int DELAY = 0;
 	int ACCURACY = 10;
-	int ITERATIONS = 500;
+	int ITERATIONS = 10;
+	boolean noGUI = false;
 	
 	private static GameField gameField;
 		
-	public static void initInstance() { gameField = new GameField();}
+	public static void initInstance() { 
+		gameField = new GameField();
+		gameField.readConstants();
+	}
 	public static GameField getInstance() { return gameField;}
 	
 	/** Заполнение массива с расположением мин
@@ -65,5 +75,23 @@ public class GameField  {
 	
 	public void updateCell(int w, int h){
 		if (mines[w][h]!=9) mines[w][h]++;
+	}
+	
+	public void readConstants() {
+		String line = null;
+	    FileHandle file = Gdx.files.local("const.cfg");
+	    BufferedReader reader = new BufferedReader(file.reader());
+	    try {line = reader.readLine();} catch (IOException e) {}
+	    while( line != null ) {
+		    String str[] = line.split(" ");
+		    if(str[0].equals("WIDTH")) WIDTH = Integer.valueOf(str[1]);
+		    if(str[0].equals("HEIGHT")) HEIGHT = Integer.valueOf(str[1]);
+		    if(str[0].equals("ACCURACY")) ACCURACY = Integer.valueOf(str[1]);
+		    if(str[0].equals("ITERATIONS")) ITERATIONS = Integer.valueOf(str[1]);
+		    if(str[0].equals("MINES")) MINES = Integer.valueOf(str[1]);
+		    if(str[0].equals("DELAY")) DELAY = Integer.valueOf(str[1]);
+		    if(line.equals("noGUI")) noGUI = true;
+		    try {line = reader.readLine();} catch (IOException e) {}
+	    }
 	}
 }

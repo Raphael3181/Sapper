@@ -1,9 +1,12 @@
 package com.project.sapper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -28,6 +31,7 @@ public class GameScreen implements Screen {
 	int minesLeft;
 	int curIteration = 1;
 	int wins = 0;
+	
 	
 	static ArrayList<Group> groups;
 	static ArrayList<Cell> cells; //Список ячеек для вспомогательного алгоритма
@@ -68,6 +72,13 @@ public class GameScreen implements Screen {
 	    fillField ();
 	    groups = new ArrayList<Group>();
 	    chances = new ArrayList<Chance>();
+	    if(field.noGUI && !field.isGame) {
+		    new Runnable() {
+				public void run() {
+					while(curIteration <= field.ITERATIONS) algorithm();
+				}
+		    }.run();
+	    }
 	}
 	
 	/** Открыть ячейку на игровом поле */
@@ -113,9 +124,8 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		if(!(curIteration > field.ITERATIONS))
-			if(!field.isGame) algorithm();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);	
+		if(!(curIteration > field.ITERATIONS) && !field.isGame && !field.noGUI) algorithm();
 		stage.draw();
 	    stage.act(Gdx.graphics.getDeltaTime());
 	}
@@ -356,12 +366,22 @@ public class GameScreen implements Screen {
 	}
 	
 	public void printResults() {
-		Gdx.graphics.setTitle("WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")"+ " MINES:" + 
-				field.MINES+ " FIELD:"+ field.WIDTH + "x" + field.HEIGHT + " ACCURACY:" + field.ACCURACY);
 		Collections.sort(chances);
-		for(Chance chance: chances) {
-			System.out.print(chance.chance + "::" + chance.realChance + " ");
-		}
+		File file = new File("results.txt");
+		try {file.createNewFile();} 
+		catch (IOException e) {}
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(file.getAbsoluteFile());
+			out.write("FIELD: "+ field.WIDTH + "x" + field.HEIGHT + ", MINES:" + field.MINES + 
+					", WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")" + "\r\n");
+			for(Chance chance: chances) {
+				out.write(chance.chance + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
+			}	
+		} catch (FileNotFoundException e) {}
+		finally {
+			out.close();
+		}	    	
 	}
 	
 	/** Перезапуск игры */
