@@ -2,6 +2,7 @@ package com.project.sapper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -27,8 +28,10 @@ public class GameScreen implements Screen {
 	int minesLeft;
 	int curIteration = 1;
 	int wins = 0;
+	
 	static ArrayList<Group> groups;
 	static ArrayList<Cell> cells; //Список ячеек для вспомогательного алгоритма
+	static ArrayList<Chance> chances;
 	
 	class CustomListener extends ClickListener {
 		@Override
@@ -46,12 +49,9 @@ public class GameScreen implements Screen {
 							if (field.mines[i][j] == 9) field.states[i][j] = field.mines[i][j]+2;
 						}
 					}
-					field.states[w][h] = 13;
-						
+					field.states[w][h] = 13;	
 				} else field.states[w][h] = state;
 			}
-	/*	refreshGroups();
-		Tests.printCells();*/
 	    }
 	}
 	
@@ -67,8 +67,10 @@ public class GameScreen implements Screen {
 	    stage = new Stage(viewp, batch);
 	    fillField ();
 	    groups = new ArrayList<Group>();
+	    chances = new ArrayList<Chance>();
 	}
 	
+	/** Открыть ячейку на игровом поле */
 	public void openCell(int w, int h) {
 		int state=field.mines[w][h]+2;
 		int oldState = field.states[w][h];
@@ -85,6 +87,7 @@ public class GameScreen implements Screen {
 		}
 	}
 	
+	/** Отрисовать поле */
 	public void fillField (){
 		for (int i=0; i<field.WIDTH; i++){
 			for (int j=0; j<field.HEIGHT; j++){
@@ -143,23 +146,31 @@ public class GameScreen implements Screen {
 				if(!openOrMark()) {
 					if(minesLeft == 0) { //все мины отмечены, всё ОК
 						wins++;
-						curIteration++;
-						if(curIteration > field.ITERATIONS) printResults();
 						restartGame();
 					} 
 					else{
 						cells = new ArrayList<Cell>();
 						Cell cell = getMinChance();
 						openCell(cell.width, cell.height);
-						if(field.states[cell.width][cell.height] > 10) { //Подорвался на мине...всё ОК :D
-							curIteration++;
-							if(curIteration > field.ITERATIONS) printResults();
-							restartGame();
-						}
+						addToChances(cell);
+						if(field.states[cell.width][cell.height] > 10) restartGame(); //Подорвался на мине...всё ОК :D	
 					}
 				}
 			}
 		}	
+	}
+	
+	/** Статистика попаданий на мины */
+	public void addToChances(Cell c) {
+		for(Chance chance: chances) {
+			if(chance.chance == (int)(c.chance*100)) {
+				chance.updateRealChance(field.states[c.width][c.height] > 10 ? true : false);
+				return;
+			}
+		} 
+		Chance chance = new Chance((int)(c.chance*100));
+		chance.updateRealChance(field.states[c.width][c.height] > 10 ? true : false);
+		chances.add(chance);
 	}
 	
 	/**Обновление списка групп */
@@ -253,21 +264,6 @@ public class GameScreen implements Screen {
 		return false;
 	}
 	
-	/*public Group intersection (Group g1, Group g2) {
-		Group newGroup = new Group();
-		for(int i=0; i< g1.cells.size(); i++) {
-			Cell c1 = g1.cells.get(i);
-			for(int j=0; j< g2.cells.size(); j++) {
-				Cell c2 = g2.cells.get(j);
-				if(c1.equals(c2)) {
-					newGroup.cells.add(c1);
-					break;
-				}
-			}
-		}
-		return newGroup;
-	}*/
-	
 	public Group difference(Group g1, Group g2) {
 		Group newGroup = new Group();
 			for(int i=0; i< g1.cells.size(); i++) {
@@ -360,11 +356,18 @@ public class GameScreen implements Screen {
 	}
 	
 	public void printResults() {
-		System.out.println("WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")"+ " MINES:" + 
+		Gdx.graphics.setTitle("WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")"+ " MINES:" + 
 				field.MINES+ " FIELD:"+ field.WIDTH + "x" + field.HEIGHT + " ACCURACY:" + field.ACCURACY);
+		Collections.sort(chances);
+		for(Chance chance: chances) {
+			System.out.print(chance.chance + "::" + chance.realChance + " ");
+		}
 	}
 	
+	/** Перезапуск игры */
 	public void restartGame() {
+		curIteration++;
+		if(curIteration > field.ITERATIONS) printResults();
 		field.fillStates();
 		fillField();
 		field.mines = null;
@@ -385,5 +388,4 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {}
-	
 }

@@ -41,6 +41,7 @@ public class GameField  {
 		}
 		
 	}
+	/** Заполнить массив состояний */
 	public void fillStates(){
 		states = new int [WIDTH][HEIGHT];
 		for(int i=0; i < WIDTH; i++){
@@ -50,6 +51,7 @@ public class GameField  {
 		}
 	}
 	
+	/** Пересчитать количество мин при добавлении мины */
 	public void updateNearCell(int w, int h){
 		if (w-1!=-1 && h-1!=-1) updateCell(w-1,h-1);
 		if (h-1!=-1) updateCell(w,h-1);
@@ -60,6 +62,7 @@ public class GameField  {
 		if (h+1!=HEIGHT) updateCell(w,h+1);
 		if (w+1!=WIDTH && h+1!=HEIGHT) updateCell(w+1,h+1);
 	}
+	
 	public void updateCell(int w, int h){
 		if (mines[w][h]!=9) mines[w][h]++;
 	}
