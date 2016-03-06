@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -139,7 +140,7 @@ public class GameScreen implements Screen {
 			algStep();
 			time = calendar.getTimeInMillis();
 		}
-		else if(time + field.DELAY < calendar.getTimeInMillis()) {
+		else if(time + field.DELAY < calendar.getTimeInMillis() || field.noGUI) {
 			time = calendar.getTimeInMillis();
 			algStep();
 		}
@@ -373,10 +374,12 @@ public class GameScreen implements Screen {
 		try {file.createNewFile();} 
 		catch (IOException e) {}
 		PrintWriter out = null;
+		
 		try {
 			out = new PrintWriter(file.getAbsoluteFile());
 			out.write("FIELD: "+ field.WIDTH + "x" + field.HEIGHT + ", MINES:" + field.MINES + 
-					", WINS:" + (int)((float)wins/(float)field.ITERATIONS*100)+ "% (" + wins + "/" + field.ITERATIONS + ")" + "\r\n");
+					", WINS:" + new BigDecimal((float)wins/(float)field.ITERATIONS*100).setScale(2, BigDecimal.ROUND_HALF_UP) 
+					+ "% (" + wins + "/" + field.ITERATIONS + ")" + "\r\n");
 			for(Chance chance: chances) {
 				if(chance.chance == 0) out.write("ШАНС НЕИЗВЕСТЕН" + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");
 				else out.write(chance.chance + "::" + chance.realChance + " "+ chance.mines+ "/" + (chance.mines + chance.noMines) +"\r\n");

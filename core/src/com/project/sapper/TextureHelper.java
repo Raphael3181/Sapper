@@ -19,7 +19,7 @@ public class TextureHelper {
 		buttons = new Texture("buttons.png");
 		buttonPlay = new  TextureRegion(buttons, 0, 0, 300, 75);
 		buttonAlg = new  TextureRegion(buttons, 0, 75, 300, 75);
-		objects = new Texture("objects.jpg");
+		objects = new Texture("graphic.png");
 		initObjects();
 	}
 	
