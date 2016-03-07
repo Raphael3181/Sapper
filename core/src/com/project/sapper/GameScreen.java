@@ -165,7 +165,7 @@ public class GameScreen implements Screen {
 					} 
 					else{
 						cells = new ArrayList<Cell>();
-						Cell cell = getMinChance();
+						Cell cell = getBestCell();
 						openCell(cell.width, cell.height);
 						addToChances(cell);
 						if(field.states[cell.width][cell.height] > 10) restartGame(); //Подорвался на мине...всё ОК :D	
@@ -238,47 +238,36 @@ public class GameScreen implements Screen {
 			//Удаление одинаковых групп
 			for(int i=0; i < groups.size(); i++) {
 				Group group = groups.get(i);
-				for(int j=0; j < groups.size(); j++) {
-					if(i!=j && group.equals(groups.get(j))) {groups.remove(j); repeat = true; break;}
+				for(int j=i+1; j < groups.size(); j++) {
+					if(group.equals(groups.get(j))) {groups.remove(j); repeat = true; break;}
 				}
-				if(repeat) break;
 			}
 			//Разделение групп
 			for(int i=0; i < groups.size(); i++) {
 				Group g1 = groups.get(i);
 				for(int j=i+1; j < groups.size(); j++) {
 					Group g2 = groups.get(j);
-					repeat = devideGroups(g1, g2, i, j);
+					if(g1.cells.size() > g2.cells.size()) repeat = devideGroups(g1, g2, i, j);
+					else if(g2.cells.size() > g1.cells.size())repeat = devideGroups(g2, g1, j, i);
 					if(repeat) break;
 				}
-				if(repeat) break;
 			}
 		} while (repeat);
 	}
 	
 	/**Разделение групп*/
 	public boolean devideGroups(Group g1, Group g2, int i, int j) {	
-		Group ng = new Group();
-		if(g1.cells.size() > g2.cells.size()) {
 			if(g1.contains(g2)) {
-				ng = difference(g1, g2);
+				Group ng = difference(g1, g2);
 				ng.number = g1.number - g2.number;
 				groups.remove(i);
 				groups.add(ng);
 				return true;
 			}
-		} else if(g2.cells.size() > g1.cells.size()) {
-			if(g2.contains(g1)) {
-				ng = difference(g2, g1);
-				ng.number = g2.number - g1.number;
-				groups.remove(j);
-				groups.add(ng);
-				return true;
-			}
-		}
 		return false;
 	}
 	
+	/** Вычесть меньшую группу из большей группы */
 	public Group difference(Group g1, Group g2) {
 		Group newGroup = new Group();
 			for(int i=0; i< g1.cells.size(); i++) {
@@ -286,7 +275,7 @@ public class GameScreen implements Screen {
 				Cell c1 = g1.cells.get(i);
 				for(int j=0; j< g2.cells.size(); j++) {
 					Cell c2 = g2.cells.get(j);
-					if(c1.equals(c2)) add = false;
+					if(c1.equals(c2)) { add = false; break;}
 				}
 				if(add)newGroup.cells.add(c1);
 			}
@@ -315,7 +304,8 @@ public class GameScreen implements Screen {
 		return false;
 	}
 	
-	public Cell getMinChance() {
+	/** Получить ячейку с минимальным шансом подрыва */
+	public Cell getBestCell() {
 		setFirstChances();
 		for(int i=0; i<field.ACCURACY; i++) {
 			for(Group group: groups) {

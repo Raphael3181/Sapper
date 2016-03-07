@@ -14,11 +14,11 @@ public class GameField  {
 	//Блок констант
 	int WIDTH = 9; 
 	int HEIGHT = 9; 
-	int MINES = 10; 
-	int DELAY = 0;
+	int MINES = 20; 
+	int DELAY = 1000;
 	int ACCURACY = 10;
 	int ITERATIONS = 10;
-	boolean noGUI = false;
+	boolean noGUI = true;
 	
 	private static GameField gameField;
 		
