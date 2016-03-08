@@ -17,12 +17,7 @@ public class Tests {
 		Iterator<Group> iterGroup = GameScreen.groups.iterator();
 	    while(iterGroup.hasNext()) {
 	    	Group group = iterGroup.next();
-	    	Iterator<Cell> iterCell = group.cells.iterator();
-	    	while(iterCell.hasNext()) {
-		    	Cell cell = iterCell.next();
-		    	System.out.print(cell.width + "::" + cell.height + "  ");
-	    	}
-	    	System.out.println(group.number);
+	    	group.print();
 	    }
 	}
 	//Вывод содержимого массива ячеек

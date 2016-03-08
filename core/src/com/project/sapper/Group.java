@@ -1,6 +1,7 @@
 package com.project.sapper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Group {
 	public ArrayList<Cell> cells; //Лист содержащий ячейки группы
@@ -29,5 +30,29 @@ public class Group {
 			if(!next) return false;
 		}
 		return true;
+	}
+	
+	/** Вычесть меньшую группу из большей группы */
+	public Group difference(Group group) {
+		Group newGroup = new Group();
+			for(int i=0; i< cells.size(); i++) {
+				boolean add = true;
+				Cell c1 = cells.get(i);
+				for(int j=0; j< group.cells.size(); j++) {
+					Cell c2 = group.cells.get(j);
+					if(c1.equals(c2)) { add = false; break;}
+				}
+				if(add)newGroup.cells.add(c1);
+			}
+		return newGroup;
+	}
+	
+	public void print() {
+		Iterator<Cell> iterCell = cells.iterator();
+    	while(iterCell.hasNext()) {
+	    	Cell cell = iterCell.next();
+	    	System.out.print(cell.width + "::" + cell.height + "  ");
+    	}
+    	System.out.println(number);
 	}
 }

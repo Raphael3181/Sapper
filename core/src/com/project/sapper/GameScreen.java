@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -34,7 +35,6 @@ public class GameScreen implements Screen {
 	int curIteration = 1;
 	int wins = 0;
 	
-	
 	static ArrayList<Group> groups;
 	static ArrayList<Cell> cells; //Список ячеек для вспомогательного алгоритма
 	static ArrayList<Chance> chances;
@@ -42,6 +42,7 @@ public class GameScreen implements Screen {
 	class CustomListener extends ClickListener {
 		@Override
 	    public void clicked(InputEvent event, float x, float y) {
+			Tests.printCells();
 			if(field.isGame) {
 				int w=(int)(x/40);
 				int h=(int)(y/40);
@@ -99,6 +100,10 @@ public class GameScreen implements Screen {
 			if (h+1!=field.HEIGHT) openCell(w,h+1);
 			if (w+1!=field.WIDTH && h+1!=field.HEIGHT) openCell(w+1,h+1);
 		}
+		if(!field.isGame && minesLeft == 0) { //все мины отмечены, всё ОК
+			wins++;
+			restartGame();
+		} 
 	}
 	
 	/** Отрисовать поле */
@@ -159,17 +164,12 @@ public class GameScreen implements Screen {
 			if(!openOrMark()){
 				refreshGroups();
 				if(!openOrMark()) {
-					if(minesLeft == 0) { //все мины отмечены, всё ОК
-						wins++;
-						restartGame();
-					} 
-					else{
-						cells = new ArrayList<Cell>();
-						Cell cell = getBestCell();
-						openCell(cell.width, cell.height);
-						addToChances(cell);
-						if(field.states[cell.width][cell.height] > 10) restartGame(); //Подорвался на мине...всё ОК :D	
-					}
+					cells = new ArrayList<Cell>();
+					Cell cell = getBestCell();
+					if(cell == null)Tests.printArray(field.states);
+					openCell(cell.width, cell.height);
+					addToChances(cell);
+					if(field.states[cell.width][cell.height] > 10) restartGame(); //Подорвался на мине...всё ОК :D	
 				}
 			}
 		}	
@@ -246,10 +246,10 @@ public class GameScreen implements Screen {
 			for(int i=0; i < groups.size(); i++) {
 				Group g1 = groups.get(i);
 				for(int j=i+1; j < groups.size(); j++) {
-					Group g2 = groups.get(j);
+					Group g2 = groups.get(j);		
 					if(g1.cells.size() > g2.cells.size()) repeat = devideGroups(g1, g2, i, j);
 					else if(g2.cells.size() > g1.cells.size())repeat = devideGroups(g2, g1, j, i);
-					if(repeat) break;
+					if(repeat) break;	
 				}
 			}
 		} while (repeat);
@@ -257,29 +257,14 @@ public class GameScreen implements Screen {
 	
 	/**Разделение групп*/
 	public boolean devideGroups(Group g1, Group g2, int i, int j) {	
-			if(g1.contains(g2)) {
-				Group ng = difference(g1, g2);
-				ng.number = g1.number - g2.number;
-				groups.remove(i);
-				groups.add(ng);
-				return true;
-			}
+		if(g1.contains(g2)) {
+			Group ng = g1.difference(g2);
+			ng.number = g1.number - g2.number;
+			groups.remove(i);
+			groups.add(ng);
+			return true;
+		}
 		return false;
-	}
-	
-	/** Вычесть меньшую группу из большей группы */
-	public Group difference(Group g1, Group g2) {
-		Group newGroup = new Group();
-			for(int i=0; i< g1.cells.size(); i++) {
-				boolean add = true;
-				Cell c1 = g1.cells.get(i);
-				for(int j=0; j< g2.cells.size(); j++) {
-					Cell c2 = g2.cells.get(j);
-					if(c1.equals(c2)) { add = false; break;}
-				}
-				if(add)newGroup.cells.add(c1);
-			}
-		return newGroup;
 	}
 	
 	/** Попытка отметить или открыть ячейку*/
@@ -292,11 +277,15 @@ public class GameScreen implements Screen {
 				if(group.cells.size() == 0) groups.remove(group);
 				return true;
 			} else if(group.number == group.cells.size()) {
-				if(field.states[cell.width][cell.height] != 1) {
+				if(field.states[cell.width][cell.height] == 0) {
 					field.states[cell.width][cell.height] = 1;
 					group.cells.remove(0);
-					minesLeft--;			
+					minesLeft--;	
 					if(group.cells.size() == 0) groups.remove(group);
+					if(minesLeft == 0) { //все мины отмечены, всё ОК
+						wins++;
+						restartGame();
+					} 
 					return true;
 				}	
 			}
@@ -341,11 +330,14 @@ public class GameScreen implements Screen {
 			}
 			
 		}
+		refreshGroups();
 		return rez;
 	}
 	
 	/** Формирование первоначальных шансов */
 	public void setFirstChances() {
+		Group ng = otherCells(); 
+		if(ng.cells.size()!=0)groups.add(ng);
 		for(Group group: groups) {
 			for(Cell cell: group.cells) {
 				boolean add = true;
@@ -355,9 +347,27 @@ public class GameScreen implements Screen {
 						c.chance = 1-(1-c.chance)*(1-(float)group.number/(float)group.cells.size());
 					}
 				}
-				if(add)cells.add(new Cell(cell.width, cell.height, (float)group.number/(float)group.cells.size()));
+				float chance = (float)group.number/(float)group.cells.size();
+				if(chance < 0){
+					chance = 0;
+				}
+				if(add)cells.add(new Cell(cell.width, cell.height, chance));
 			}
 		}
+	}
+	
+	/**Формирование группы из ячеек, для которых неизвестно количество мин */
+	public Group otherCells() {
+		Group ng = new Group();
+		ng.number = minesLeft;
+		for(int i=0; i < field.WIDTH; i++){
+			for(int j=0; j < field.HEIGHT; j++){
+				Cell cell = new Cell(i,j);
+				if(cell.notOverlap())ng.cells.add(cell);
+			}
+		}
+		if(ng.number > ng.cells.size()) ng.number = ng.cells.size();
+		return ng;
 	}
 	
 	public void printResults() {

@@ -12,13 +12,13 @@ public class GameField  {
 	public boolean isGame;
 	
 	//Блок констант
-	int WIDTH = 9; 
-	int HEIGHT = 9; 
-	int MINES = 20; 
-	int DELAY = 1000;
+	int WIDTH = 10; 
+	int HEIGHT = 10; 
+	int MINES = 10; 
+	int DELAY = 0;
 	int ACCURACY = 10;
-	int ITERATIONS = 10;
-	boolean noGUI = true;
+	int ITERATIONS = 100;
+	boolean noGUI = false;
 	
 	private static GameField gameField;
 		
